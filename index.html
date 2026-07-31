@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<title>Biblioteca Virtual - Préstamo físico y digital</title>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="author" content="">
+	<meta name="keywords" content="biblioteca virtual, préstamo libros físicos, lectura digital">
+	<meta name="description" content="Plataforma de préstamo de libros físicos y acceso a biblioteca digital.">
+
+	<!-- Bootstrap CSS -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+
+	<!-- Bootstrap Icons (CDN) -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+	<!-- Archivos de la plantilla -->
+	<link rel="stylesheet" type="text/css" href="css/normalize.css">
+	<link rel="stylesheet" type="text/css" href="icomoon/icomoon.css">
+	<link rel="stylesheet" type="text/css" href="css/vendor.css">
+	<link rel="stylesheet" type="text/css" href="style.css">
+
+	<style>
+		/* ========== SOLUCIÓN PARA LOS ICONOS ========== */
+		.bi::before,
+		[class^="bi-"]::before,
+		[class*=" bi-"]::before {
+			font-family: "bootstrap-icons" !important;
+			font-style: normal;
+			font-weight: normal !important;
+			font-variant: normal;
+			text-transform: none;
+			line-height: 1;
+			vertical-align: -.125em;
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
+		}
+
+		/* ========== ESTILOS EXISTENTES ========== */
+		.badge-status {
+			display: inline-block;
+			padding: 0.25rem 0.75rem;
+			font-size: 0.75rem;
+			font-weight: 600;
+			border-radius: 20px;
+			background-color: #28a745;
+			color: #fff;
+			margin-top: 0.5rem;
+		}
+		.badge-status.digital {
+			background-color: #17a2b8;
+		}
+		.badge-status.prestado {
+			background-color: #dc3545;
+		}
+
+		.stat-number {
+			font-size: 2.5rem;
+			font-weight: 700;
+			color: #74642F;
+			display: block;
+			line-height: 1.2;
+		}
+		.stat-label {
+			font-size: 1rem;
+			color: #555;
+		}
+
+		.step-icon,
+		.why-icon {
+			font-size: 3rem;
+			color: #74642F;
+			margin-bottom: 1rem;
+			display: block;
+		}
+		.step-title {
+			font-weight: 600;
+			margin-bottom: 0.5rem;
+		}
+		.why-icon {
+			font-size: 2.5rem;
+			margin-bottom: 0.5rem;
+		}
+
+		.trust-badges {
+			display: flex;
+			gap: 1.5rem;
+			flex-wrap: wrap;
+			margin-bottom: 1.5rem;
+		}
+		.trust-badges span {
+			font-size: 0.95rem;
+		}
+
+		#billboard .main-slider .slider-item {
+			display: flex;
+			align-items: center;
+		}
+	</style>
+</head>
+<body data-bs-spy="scroll" data-bs-target="#header" tabindex="0">
+
+	<!-- ==================== HEADER ==================== -->
+	<div id="header-wrap">
+		<header id="header">
+			<div class="container-fluid">
+				<div class="row align-items-center">
+					<div class="col-md-2">
+						<div class="main-logo">
+							<a href="index.html"><img src="images/main-logo.png" alt="Logo Biblioteca"></a>
+						</div>
+					</div>
+					<div class="col-md-10">
+						<nav id="navbar">
+							<div class="main-menu stellarnav">
+								<ul class="menu-list">
+									<li class="menu-item active"><a href="#inicio">Inicio</a></li>
+									<li class="menu-item"><a href="#catalogo">Catálogo</a></li>
+									<li class="menu-item"><a href="#digitales">Libros Digitales</a></li>
+									<li class="menu-item"><a href="#prestamos">Préstamos</a></li>
+									<li class="menu-item"><a href="#acerca">Acerca de</a></li>
+									<li class="menu-item"><a href="#contacto">Contacto</a></li>
+									<li class="menu-item"><a href="#" class="btn btn-outline-accent btn-sm" id="btnAbrirLogin">Iniciar sesión</a></li>
+								</ul>
+								<div class="hamburger">
+									<span class="bar"></span>
+									<span class="bar"></span>
+									<span class="bar"></span>
+								</div>
+							</div>
+						</nav>
+					</div>
+				</div>
+			</div>
+		</header>
+	</div>
+<!-- ==================== MODAL DE CUENTA (usuario logueado) ==================== -->
+<div class="modal fade" id="modalCuenta" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-sm">
+		<div class="modal-content modal-auth-custom">
+			<button type="button" class="btn-close btn-close-custom" data-bs-dismiss="modal"></button>
+			<div class="modal-body p-4 text-center">
+			<i class="bi bi-person-circle" style="font-size: 3rem; color: #74642F;"></i>
+			<h5 class="mt-3 mb-1" id="cuentaNombreUsuario">Usuario</h5>
+			<p class="text-muted small mb-4" id="cuentaEmailUsuario"></p>
+
+			<a href="#" class="btn btn-outline-secondary w-100 mb-2" id="btnMisPrestamos">Mis préstamos</a>
+			<a href="#" class="btn btn-outline-secondary w-100 mb-2 d-none" id="btnPanelAdmin">
+				<i class="bi bi-gear"></i> Panel de administrador
+			</a>
+			<button type="button" class="btn btn-outline-danger w-100" onclick="cerrarSesion()">Cerrar sesión</button>
+		</div>
+		</div>
+	</div>
+</div>
+	<!-- ==================== BANNER CON SLIDER ==================== -->
+	<section id="billboard">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<button class="prev slick-arrow"><i class="icon icon-arrow-left"></i></button>
+					<div class="main-slider pattern-overlay">
+						<!-- Slide 1 -->
+						<div class="slider-item">
+							<div class="banner-content">
+								<h2 class="banner-title">Biblioteca Virtual</h2>
+								<p class="lead" style="font-size: 1.4rem; font-weight: 300;">Préstamo de libros físicos y acceso a una biblioteca digital desde una sola plataforma.</p>
+								<p>Busca en nuestro catálogo, reserva libros físicos para su préstamo o disfruta de la lectura digital desde cualquier dispositivo, de forma rápida, segura y disponible las 24 horas.</p>
+								<div class="trust-badges">
+									<span>✔ Más de 10.000 libros</span>
+									<span>✔ Disponible 24/7</span>
+									<span>✔ Préstamos físicos y digitales</span>
+								</div>
+								<div class="btn-wrap">
+									<a href="#catalogo" class="btn btn-outline-accent btn-accent-arrow">Explorar catálogo <i class="icon icon-ns-arrow-right"></i></a>
+								</div>
+							</div>
+							<img src="images/main-banner1.jpg" alt="Préstamo de libros físicos" class="banner-image">
+						</div>
+						<!-- Slide 2 -->
+						<div class="slider-item">
+							<div class="banner-content">
+								<h2 class="banner-title">Biblioteca Digital</h2>
+								<p class="lead" style="font-size: 1.4rem; font-weight: 300;">Lee libros digitales desde cualquier dispositivo, cuando y donde quieras.</p>
+								<p>Accede a nuestra colección de libros electrónicos sin necesidad de desplazarte. Disfruta de la lectura en tu computadora, tablet o teléfono.</p>
+								<div class="trust-badges">
+									<span>✔ Más de 2.000 títulos digitales</span>
+									<span>✔ Lectura sin conexión</span>
+									<span>✔ Formato adaptable</span>
+								</div>
+								<div class="btn-wrap">
+									<a href="#digitales" class="btn btn-outline-accent btn-accent-arrow">Comenzar a leer <i class="icon icon-ns-arrow-right"></i></a>
+								</div>
+							</div>
+							<img src="images/main-banner2.jpg" alt="Lectura digital" class="banner-image">
+						</div>
+					</div>
+					<button class="next slick-arrow"><i class="icon icon-arrow-right"></i></button>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- ==================== BUSCADOR ==================== -->
+	<section id="search-section" class="py-4" style="background: #f8f7f3;">
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-md-10">
+					<form class="row g-3 align-items-end">
+						<div class="col-md-4">
+							<label for="searchQuery" class="form-label">Buscar</label>
+							<input type="text" class="form-control" id="searchQuery" placeholder="Título, autor, ISBN...">
+						</div>
+						<div class="col-md-3">
+							<label for="searchCategory" class="form-label">Categoría</label>
+							<select class="form-select" id="searchCategory">
+								<option value="">Todas</option>
+								<option value="literatura">Literatura</option>
+								<option value="tecnologia">Tecnología</option>
+								<option value="historia">Historia</option>
+								<option value="ciencia">Ciencia</option>
+								<option value="infantil">Infantil</option>
+								<option value="academicos">Académicos</option>
+							</select>
+						</div>
+						<div class="col-md-3">
+							<label for="searchAvailability" class="form-label">Disponibilidad</label>
+							<select class="form-select" id="searchAvailability">
+								<option value="">Todos</option>
+								<option value="disponible">Disponible</option>
+								<option value="digital">Digital</option>
+								<option value="prestado">Prestado</option>
+							</select>
+						</div>
+						<div class="col-md-2">
+							<button type="submit" class="btn btn-accent w-100">Buscar</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- ==================== CATEGORÍAS ==================== -->
+	<section id="categories" class="py-5">
+		<div class="container">
+			<div class="section-header align-center">
+				<div class="title"><span>Explora por género</span></div>
+				<h2 class="section-title">Categorías</h2>
+			</div>
+			<div class="row g-4">
+				<div class="col-md-2 col-6">
+					<div class="category-card text-center p-3 border rounded-3" style="background: #fff;">
+						<i class="bi bi-book" style="font-size: 2.5rem; color: #74642F;"></i>
+						<h5 class="mt-2">Literatura</h5>
+					</div>
+				</div>
+				<div class="col-md-2 col-6">
+					<div class="category-card text-center p-3 border rounded-3" style="background: #fff;">
+						<i class="bi bi-laptop" style="font-size: 2.5rem; color: #74642F;"></i>
+						<h5 class="mt-2">Tecnología</h5>
+					</div>
+				</div>
+				<div class="col-md-2 col-6">
+					<div class="category-card text-center p-3 border rounded-3" style="background: #fff;">
+						<i class="bi bi-clock-history" style="font-size: 2.5rem; color: #74642F;"></i>
+						<h5 class="mt-2">Historia</h5>
+					</div>
+				</div>
+				<div class="col-md-2 col-6">
+					<div class="category-card text-center p-3 border rounded-3" style="background: #fff;">
+						<svg xmlns="http://www.w3.org/2000/svg" width="40" height="80" fill="#74642F" class="bi bi-flask" viewBox="0 0 16 16" style="display: block; margin: 0 auto 0.5rem;">
+							<path d="M4.5 0a.5.5 0 0 0 0 1H5v5.36L.503 13.717A1.5 1.5 0 0 0 1.783 16h12.434a1.5 1.5 0 0 0 1.28-2.282L11 6.359V1h.5a.5.5 0 0 0 0-1zM10 2H9a.5.5 0 0 0 0 1h1v1H9a.5.5 0 0 0 0 1h1v1H9a.5.5 0 0 0 0 1h1.22l.61 1H10a.5.5 0 1 0 0 1h1.442l.611 1H11a.5.5 0 1 0 0 1h1.664l.611 1H12a.5.5 0 1 0 0 1h1.886l.758 1.24a.5.5 0 0 1-.427.76H1.783a.5.5 0 0 1-.427-.76l4.57-7.48A.5.5 0 0 0 6 6.5V1h4z"/>
+						</svg>
+						<h5 class="mt-2">Ciencia</h5>
+					</div>
+				</div>
+				<div class="col-md-2 col-6">
+					<div class="category-card text-center p-3 border rounded-3" style="background: #fff;">
+						<i class="bi bi-puzzle" style="font-size: 2.5rem; color: #74642F;"></i>
+						<h5 class="mt-2">Infantil</h5>
+					</div>
+				</div>
+				<div class="col-md-2 col-6">
+					<div class="category-card text-center p-3 border rounded-3" style="background: #fff;">
+						<i class="bi bi-mortarboard" style="font-size: 2.5rem; color: #74642F;"></i>
+						<h5 class="mt-2">Académicos</h5>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- ==================== CATÁLOGO DESTACADO ==================== -->
+	<div class="section-header align-center">
+    <div class="title"><span>Nuestra colección</span></div>
+    <h2 class="section-title">Libros Destacados</h2>
+</div>
+
+<div class="catalogo-nav">
+
+    <button class="catalogo-arrow catalogo-prev">
+        <i class="icon icon-arrow-left"></i>
+    </button>
+
+    <button class="catalogo-arrow catalogo-next">
+        <i class="icon icon-arrow-right"></i>
+    </button>
+
+</div>
+
+<div class="product-list">
+    <div id="librosDestacados"></div>
+</div>
+	<!-- ==================== CÓMO FUNCIONA ==================== -->
+	<section id="how-it-works" class="py-5" style="background: #f8f7f3;">
+		<div class="container">
+			<div class="section-header align-center">
+				<div class="title"><span>Fácil y rápido</span></div>
+				<h2 class="section-title">¿Cómo funciona?</h2>
+			</div>
+			<div class="row g-4">
+				<div class="col-md-4 text-center">
+					<i class="bi bi-search step-icon"></i>
+					<h4 class="step-title">Buscar</h4>
+					<p>Encuentra el libro que deseas por título, autor o categoría.</p>
+				</div>
+				<div class="col-md-4 text-center">
+					<i class="bi bi-clipboard step-icon"></i>
+					<h4 class="step-title">Reservar</h4>
+					<p>Solicita el préstamo y elige entre formato físico o digital.</p>
+				</div>
+				<div class="col-md-4 text-center">
+					<i class="bi bi-book step-icon"></i>
+					<h4 class="step-title">Leer</h4>
+					<p>Disfruta de la lectura desde cualquier dispositivo.</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- ==================== ESTADÍSTICAS ==================== -->
+	<section id="stats" class="py-5">
+		<div class="container">
+			<div class="row text-center g-4">
+				<div class="col-md-3 col-6">
+					<span class="stat-number">0</span>
+					<span class="stat-label">Libros</span>
+				</div>
+				<div class="col-md-3 col-6">
+					<span class="stat-number">0</span>
+					<span class="stat-label">Usuarios</span>
+				</div>
+				<div class="col-md-3 col-6">
+					<span class="stat-number">0</span>
+					<span class="stat-label">Libros digitales</span>
+				</div>
+				<div class="col-md-3 col-6">
+					<span class="stat-number">0</span>
+					<span class="stat-label">Préstamos activos</span>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- ==================== ¿POR QUÉ ELEGIRNOS? ==================== -->
+	<section id="why-us" class="py-5" style="background: #edebe4;">
+		<div class="container">
+			<div class="section-header align-center">
+				<div class="title"><span>Ventajas</span></div>
+				<h2 class="section-title">¿Por qué elegir nuestra biblioteca?</h2>
+			</div>
+			<div class="row g-4">
+				<div class="col-md-3 col-6">
+					<div class="text-center">
+						<i class="bi bi-clock why-icon"></i>
+						<h5 class="mt-2">Préstamos rápidos</h5>
+					</div>
+				</div>
+				<div class="col-md-3 col-6">
+					<div class="text-center">
+						<i class="bi bi-tablet why-icon"></i>
+						<h5 class="mt-2">Lectura digital</h5>
+					</div>
+				</div>
+				<div class="col-md-3 col-6">
+					<div class="text-center">
+						<i class="bi bi-display why-icon"></i>
+						<h5 class="mt-2">Acceso multiplataforma</h5>
+					</div>
+				</div>
+				<div class="col-md-3 col-6">
+					<div class="text-center">
+						<i class="bi bi-shield-lock why-icon"></i>
+						<h5 class="mt-2">Gestión segura</h5>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- ==================== FOOTER ==================== -->
+	<footer id="footer">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-4">
+					<div class="footer-item">
+						<div class="company-brand">
+							<img src="images/main-logo.png" alt="logo" class="footer-logo">
+							<p>Somos una biblioteca virtual que conecta a los amantes de la lectura con libros físicos y digitales.</p>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-2">
+					<div class="footer-menu">
+						<h5>Biblioteca</h5>
+						<ul class="menu-list">
+							<li><a href="#inicio">Inicio</a></li>
+							<li><a href="#catalogo">Catálogo</a></li>
+							<li><a href="#digitales">Libros Digitales</a></li>
+							<li><a href="#prestamos">Préstamos</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-md-2">
+					<div class="footer-menu">
+						<h5>Información</h5>
+						<ul class="menu-list">
+							<li><a href="#acerca">Acerca de</a></li>
+							<li><a href="#contacto">Contacto</a></li>
+							<li><a href="#blog">Blog</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-md-2">
+					<div class="footer-menu">
+						<h5>Legal</h5>
+						<ul class="menu-list">
+							<li><a href="#">Política de privacidad</a></li>
+							<li><a href="#">Tratamiento de datos</a></li>
+							<li><a href="#">Términos y condiciones</a></li>
+							<li><a href="#">Cookies</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="col-md-2">
+					<div class="footer-menu">
+						<h5>Ayuda</h5>
+						<ul class="menu-list">
+							<li><a href="#">Centro de ayuda</a></li>
+							<li><a href="#">Reportar problema</a></li>
+							<li><a href="#">Sugerencias</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</footer>
+
+	<div id="footer-bottom">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="copyright">
+						<div class="row">
+							<div class="col-md-6">
+								<p>© 2025 Biblioteca Virtual. Adaptado de <a href="https://www.templatesjungle.com/" target="_blank">TemplatesJungle</a></p>
+							</div>
+							<div class="col-md-6">
+								<div class="social-links align-right">
+									<ul>
+										<li><a href="#"><i class="icon icon-facebook"></i></a></li>
+										<li><a href="#"><i class="icon icon-twitter"></i></a></li>
+										<li><a href="#"><i class="icon icon-youtube-play"></i></a></li>
+										<li><a href="#"><i class="icon icon-behance-square"></i></a></li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+<!-- ==================== MODAL DE DETALLES Y PRÉSTAMO ==================== -->
+<div class="modal fade" id="modalDetalleLibro" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-lg modal-dialog-centered">
+		<div class="modal-content modal-libro-custom">
+			<button type="button" class="btn-close btn-close-custom" data-bs-dismiss="modal"></button>
+
+			<div class="modal-body p-0">
+				<div class="row g-0">
+					<!-- Columna imágenes -->
+					<div class="col-md-5 libro-imagenes-col">
+						<div class="libro-imagen-principal">
+							<img id="modalLibroPortada" src="" alt="Portada">
+							<span id="modalLibroBadge" class="badge-status badge-flotante"></span>
+						</div>
+						<div class="libro-imagen-secundaria">
+							<span class="miniatura-label">Contraportada</span>
+							<img id="modalLibroContraportada" src="" alt="Contraportada">
+						</div>
+					</div>
+
+					<!-- Columna info + préstamo -->
+					<div class="col-md-7">
+						<div class="libro-info-col">
+							<span class="libro-categoria-tag" id="modalLibroCategoria"></span>
+							<h3 class="libro-titulo-modal" id="modalLibroTitulo">Título del libro</h3>
+							<p class="libro-autor-modal">por <span id="modalLibroAutor"></span></p>
+							<p class="libro-descripcion-modal" id="modalLibroDescripcion"></p>
+
+							<hr class="divisor-elegante">
+
+							<!-- Bloque de préstamo -->
+							<div id="bloquePrestamo">
+								<h6 class="subtitulo-prestamo">
+									<i class="bi bi-calendar-check"></i> Solicitar préstamo
+								</h6>
+
+								<div id="prestamoError" class="alert alert-danger d-none"></div>
+								<div id="prestamoExito" class="alert alert-success d-none"></div>
+								<button type="button" class="btn btn-descargar-recibo w-100 mb-3 d-none" id="btnDescargarRecibo">
+									<i class="bi bi-download"></i> Descargar recibo de préstamo
+								</button>
+
+								<div class="fechas-prestamo-box">
+									<div class="fecha-item">
+										<label>Fecha de retiro</label>
+										<input type="date" class="form-control" id="fechaRetiro">
+									</div>
+									<div class="fecha-flecha"><i class="bi bi-arrow-right"></i></div>
+									<div class="fecha-item">
+										<label>Devolución máxima</label>
+										<input type="text" class="form-control" id="fechaDevolucion" readonly>
+									</div>
+								</div>
+
+								<div class="form-check consentimiento-check">
+									<input class="form-check-input" type="checkbox" id="checkConsentimiento">
+									<label class="form-check-label" for="checkConsentimiento">
+										Acepto el reglamento de préstamo: devolver el libro antes de la fecha límite indicada,
+										o asumir una multa de <strong id="montoMultaTexto">$0 COP</strong> por cada día de retraso.
+									</label>
+								</div>
+
+								<button type="button" class="btn btn-confirmar-prestamo w-100" id="btnConfirmarPrestamo" disabled>
+									Confirmar préstamo
+								</button>
+							</div>
+
+							<div id="bloqueNoDisponible" class="alert alert-warning d-none">
+								<i class="bi bi-exclamation-circle"></i> Este libro no está disponible para préstamo en este momento.
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- ==================== MODAL: MIS PRÉSTAMOS ==================== -->
+<div class="modal fade" id="modalMisPrestamos" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+		<div class="modal-content modal-prestamos-custom">
+			<div class="modal-header prestamos-header">
+				<h5 class="modal-title"><i class="bi bi-journal-bookmark"></i> Mis préstamos</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body" id="listaMisPrestamos">
+				<p class="text-center text-muted py-4">Cargando tus préstamos...</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+	<!-- ==================== MODAL DE LOGIN/REGISTRO ==================== -->
+<div class="modal fade" id="modalAuth" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content modal-auth-custom">
+			<button type="button" class="btn-close btn-close-custom" data-bs-dismiss="modal"></button>
+
+			<div class="modal-body p-0">
+				<div class="auth-header">
+					<span class="auth-tag">Biblioteca Virtual</span>
+					<h3 class="auth-titulo" id="authModalTitulo">Bienvenido de nuevo</h3>
+					<p class="auth-subtitulo" id="authModalSubtitulo">Inicia sesión para gestionar tus préstamos</p>
+				</div>
+
+				<div class="auth-body">
+					<div id="authError" class="alert alert-danger d-none"></div>
+
+					<!-- Solo visible en modo Registro -->
+					<div class="auth-field d-none" id="authNombreWrap">
+						<label>Nombre completo</label>
+						<input type="text" class="form-control" id="authNombre" placeholder="Tu nombre y apellido">
+					</div>
+
+					<div class="auth-field">
+						<label>Correo electrónico</label>
+						<input type="email" class="form-control" id="authEmail" placeholder="tucorreo@ejemplo.com">
+					</div>
+
+					<div class="auth-field">
+						<label>Contraseña</label>
+						<input type="password" class="form-control" id="authPassword" placeholder="Mínimo 6 caracteres">
+					</div>
+
+					<!-- Solo visible en modo Registro -->
+					<div class="consentimiento-check-wrap d-none" id="authConsentimientoWrap">
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" id="checkConsentimientoRegistro">
+					<label class="form-check-label" for="checkConsentimientoRegistro">
+						Acepto el tratamiento de mis datos personales, conforme a la Ley 1581 de 2012.
+					</label>
+				</div>
+
+				<button type="button" class="btn-desplegar-politica" data-bs-toggle="collapse" data-bs-target="#colapsoPolitica" aria-expanded="false">
+					<span>¿Qué significa esto? Ver política completa</span>
+					<i class="bi bi-chevron-down flecha-politica"></i>
+				</button>
+
+				<div class="collapse" id="colapsoPolitica">
+					<div class="politica-desplegada">
+						<h6><i class="bi bi-info-circle"></i> ¿Qué es esto?</h6>
+						<p>La Ley 1581 de 2012 protege tu derecho a saber, controlar y decidir qué pasa con tu
+						información personal (esto se conoce como <em>Habeas Data</em>). Antes de tratar tus datos,
+						necesitamos tu autorización previa, expresa e informada — por eso existe esta casilla.</p>
+
+						<h6><i class="bi bi-building"></i> ¿Quién es responsable de tus datos?</h6>
+						<p><strong>[Nombre de tu biblioteca]</strong> es la responsable del tratamiento de tus datos.
+						Puedes escribirnos a <strong>[correo de contacto]</strong> para cualquier consulta.</p>
+
+						<h6><i class="bi bi-database"></i> ¿Qué datos recolectamos?</h6>
+						<p>Tu nombre, correo electrónico y, cuando corresponda, teléfono y dirección. También
+						registramos tus solicitudes de préstamo y la aceptación de estas condiciones.</p>
+
+						<h6><i class="bi bi-bullseye"></i> ¿Para qué los usamos?</h6>
+						<ul>
+							<li>Gestionar tu cuenta y tu historial de préstamos.</li>
+							<li>Notificarte fechas de devolución próximas a vencer.</li>
+							<li>Calcular y notificar multas por retraso, si aplica.</li>
+							<li>Contactarte por dudas sobre un préstamo activo.</li>
+						</ul>
+
+						<h6><i class="bi bi-shield-lock"></i> ¿Cómo protegemos tu información?</h6>
+						<p>Aplicamos medidas de seguridad técnicas y administrativas para evitar accesos no
+						autorizados a tus datos, y solo los usamos para los fines que ya te contamos.</p>
+
+						<h6><i class="bi bi-eye-slash"></i> ¿Con quién los compartimos?</h6>
+						<p>Con nadie. Tus datos no se venden ni se ceden a terceros con fines publicitarios.</p>
+
+						<h6><i class="bi bi-person-check"></i> ¿Qué derechos tienes?</h6>
+						<p>Puedes conocer, actualizar, corregir, solicitar prueba de tu autorización, o revocar
+						el uso de tus datos cuando quieras, escribiéndonos por nuestro formulario de contacto.
+						También puedes presentar una queja ante la <strong>Superintendencia de Industria y
+						Comercio (SIC)</strong> si consideras que tus datos no están siendo tratados correctamente.</p>
+					</div>
+				</div>
+			</div>
+
+					<button type="button" class="btn btn-confirmar-prestamo w-100" id="btnAuthSubmit">Iniciar sesión</button>
+
+					<p class="auth-toggle-text">
+						<span id="authToggleTextoBase">¿No tienes cuenta?</span>
+						<a href="#" id="toggleAuthMode">Regístrate aquí</a>
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- ==================== MODAL: PANEL DE ADMINISTRADOR ==================== -->
+<div class="modal fade" id="modalAdmin" tabindex="-1" aria-hidden="true">
+	<div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+		<div class="modal-content modal-prestamos-custom">
+			<div class="modal-header prestamos-header">
+				<h5 class="modal-title"><i class="bi bi-gear"></i> Panel de administrador — Préstamos activos</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+			</div>
+			<div class="modal-body" id="listaAdminPrestamos">
+				<p class="text-center text-muted py-4">Cargando préstamos...</p>
+			</div>
+		</div>
+	</div>
+</div>
+
+	<!-- ==================== SCRIPTS DE LA PLANTILLA ==================== -->
+	<script src="js/jquery-1.11.0.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+		crossorigin="anonymous"></script>
+	<script src="js/plugins.js"></script>
+	<script src="js/script.js"></script>
+
+	<!-- ==================== SUPABASE Y LÓGICA DE LA APP ==================== -->
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+	<script src="js/supabase-client.js"></script>
+	<script src="js/catalogo.js"></script>
+	<script src="js/recibo.js"></script>
+	<script src="js/prestamos.js"></script>
+	<script src="js/mis-prestamos.js"></script>
+	<script src="js/admin.js"></script>
+	<script src="js/auth.js"></script>
+</body>
+</html>
